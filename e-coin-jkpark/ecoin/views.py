@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.db import transaction
 
-from .forms import UserCreationForm, LoginForm
+from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm
 from .models import User, CoinAccount
 
 
@@ -80,8 +80,25 @@ def main(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def charge(request):
-    rendered_values = {}
-    return render(request, 'ecoin/charge.html', rendered_values)
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
+    if request.method == 'GET':
+        recharge_real_money_form = RechargeRealMoneyForm()
+        rendered_values['money_form'] = recharge_real_money_form
+
+        return render(request, 'ecoin/charge.html', rendered_values)
+    elif request.method == 'POST':
+        recharge_real_money_form = RechargeRealMoneyForm(request.POST)
+        if recharge_real_money_form.is_valid():
+            print('Valid!')
+            real_money = recharge_real_money_form.cleaned_data.get('real_money')
+            recharge_real_money_form.save(request.user)
+        else:
+            print('Not valid!')
+
+        return redirect('charge')
 
 @login_required(login_url=LOGIN_URI_PATH)
 def go_shopping(request):

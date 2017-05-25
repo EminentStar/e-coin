@@ -27,4 +27,19 @@
         </form>
     </div>
     <br>
+
+    <div class="row">
+        <p>username: {{username}}</p>
+        <p>real_money: {{coin_account.real_money}}</p>
+        <p>ecoin: {{coin_account.ecoin}}</p>
+    </div>
+    <br>
+
+    <form id="recharge" method="post" action="{% url 'charge' %}">
+	{% csrf_token %}
+	{{money_form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           RECHARGE MONEY
+        </button>
+    </form>
 {% endblock content %}
