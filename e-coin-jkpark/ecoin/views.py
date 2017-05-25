@@ -5,8 +5,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.contrib import messages
+from django.db import transaction
 
 from .forms import UserCreationForm, LoginForm
+from .models import User, CoinAccount
 
 
 @require_GET
@@ -17,6 +19,7 @@ def index(request):
         rendered_values = {}
         return render(request, 'ecoin/index.html', rendered_values)
 
+@require_http_methods(["GET", "POST"]) 
 def signup(request):
     if request.method == 'GET':
         user_creation_form = UserCreationForm()
@@ -26,14 +29,17 @@ def signup(request):
         form = UserCreationForm(request.POST)
 
         if form.is_valid():
-            form.save() # save user info
+            # form.save() # save user info
             username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            email = form.cleaned_data.get('email')
-            print("username: %s, raw_password: %s, email: %s" % (username, raw_password, email))
+            try:
+                create_user_in_atomic_transaction(form, username)
+            except IntegrityError as e:
+                print(e)
+                messages.add_message(request, messages.ERROR, 'Fail to Signup!')
         
         return redirect('index')
 
+@require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == 'GET':
         return render(request, 'ecoin/registration/login.html', {})
@@ -86,3 +92,15 @@ def refund(request):
 def remit(request):
     rendered_values = {}
     return render(request, 'ecoin/remittance.html', rendered_values)
+
+def create_user_in_atomic_transaction(user, username):
+    """This function saves User and CoinAccount object in atomic transaction."""
+    try:
+        with transaction.atomic():
+            user.save()
+            user = User.objects.get(username=username)
+            coin_account = CoinAccount(username=user)
+            coin_account.save()
+    except IntegrityError as e:
+        raise e
+        
