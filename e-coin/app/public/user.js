@@ -24,9 +24,11 @@ module.exports = {
   loginUser(req, res) {
     const {email, password} = req.body;
     User
-    .findOne({email, password})
+    .findOne({
+      where: { email, password }
+    })
     .then((reply) => {
-      console.log(reply.dataValues);
+      if (!reply) return res.status(500).send({message: '로그인할 수 없습니다.'});
       const token = jwt.sign(reply.dataValues, config.JWT_TOKEN);
       res.send(token);
     });
