@@ -41,12 +41,22 @@
     </div>
     {% endif %}
 
-    <div class="row">
-        <p>username: {{username}}</p>
-        <p>real_money: {{coin_account.real_money}}</p>
-        <p>ecoin: {{coin_account.ecoin}}</p>
-    </div>
-    <br>
+    <table class="bordered">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Money</th>
+                <th>E-Coin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{username}}</td>
+                <td>{{coin_account.real_money}}</td>
+                <td>{{coin_account.ecoin}}</td>
+            </tr>
+        </tbody>
+    </table>
     <form id="remit" method="post" action="{% url 'remit' %}">
 	{% csrf_token %}
 	{{remit_form.as_p}}
