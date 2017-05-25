@@ -1,0 +1,21 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+	    <title>E-Coin 거래소</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="{% static 'css/ecoin.css' %}">
+        <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    </head>
+    <body>
+        <div class="page-header">
+            <h1><a href="/">E-Coin 거래소</a></h1>
+        </div>
+    {% block content %}
+    {% endblock %}
+    </body>
+</html>
