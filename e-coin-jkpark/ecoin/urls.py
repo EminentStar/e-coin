@@ -10,5 +10,8 @@ urlpatterns = [
     url(r'login/$', views.login_user, name='login_user'),
     url(r'logout/$', views.logout_user, name='logout_user'),
     url(r'main/$', views.main, name='main'),
-    #url(r'login/$', 'django.contrib.auth.views.login', {'authentication_form': LoginForm}, name='login_url'),
+    url(r'charge/$', views.charge, name='charge'),
+    url(r'go_shopping/$', views.go_shopping, name='go_shopping'),
+    url(r'refund/$', views.refund, name='refund'),
+    url(r'remit/$', views.remit, name='remit'),
 ]

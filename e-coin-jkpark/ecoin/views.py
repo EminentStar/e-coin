@@ -57,12 +57,32 @@ def login_user(request):
             return redirect('index')
 
 @login_required(login_url='/login/')
+def logout_user(request):
+    logout(request)
+    rendered_values = {}
+    return redirect('index')
+
+@login_required(login_url='/login/')
 def main(request):
     rendered_values = {}
     return render(request, 'ecoin/main_view.html', rendered_values)
 
 @login_required(login_url='/login/')
-def logout_user(request):
-    logout(request)
+def charge(request):
     rendered_values = {}
-    return redirect('index')
+    return render(request, 'ecoin/charge.html', rendered_values)
+
+@login_required(login_url='/login/')
+def go_shopping(request):
+    rendered_values = {}
+    return render(request, 'ecoin/shopping.html', rendered_values)
+
+@login_required(login_url='/login/')
+def refund(request):
+    rendered_values = {}
+    return render(request, 'ecoin/refund.html', rendered_values)
+
+@login_required(login_url='/login/')
+def remit(request):
+    rendered_values = {}
+    return render(request, 'ecoin/remittance.html', rendered_values)
