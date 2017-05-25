@@ -11,8 +11,11 @@ from .forms import UserCreationForm, LoginForm
 
 @require_GET
 def index(request):
-    rendered_values = {}
-    return render(request, 'ecoin/index.html', rendered_values)
+    if request.user.is_authenticated():
+        return redirect('main')
+    else:
+        rendered_values = {}
+        return render(request, 'ecoin/index.html', rendered_values)
 
 def signup(request):
     if request.method == 'GET':
