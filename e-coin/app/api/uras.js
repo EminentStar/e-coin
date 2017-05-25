@@ -17,7 +17,7 @@ module.exports = {
       offset,
     })
     .then((reply) => {
-      res.set('X-ECOIN-Total-Count', reply.count)
+      res.set('X-ECOIN-Total-Count', reply.count);
       res.send(reply.rows);
     });
   },
@@ -122,7 +122,7 @@ module.exports = {
     }).catch((err) => {
       console.log('트랜젝션 실패');
       console.log(err.message);
-      
+
       res.status(500).send({
         message: '트랙젝션 실패',
         error: err.message,
