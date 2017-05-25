@@ -16,6 +16,9 @@ module.exports = sequelize.define('user', {
   password: {
     type: Sequelize.STRING
   },
+  ura: {
+    type: Sequelize.INTEGER
+  },
 },{
   defaultScope: {
     attributes: {

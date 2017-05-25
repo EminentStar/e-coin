@@ -1,5 +1,5 @@
 const express = require('express');
-const { sequelize, Ura, Path } = require('../../data');
+const { sequelize, User, Ura, Path } = require('../../data');
 
 module.exports = {
   getUras(req, res) {
@@ -55,14 +55,90 @@ module.exports = {
     const result = { };
 
     return sequelize.transaction((transaction) => {
+      return Ura.find({
+        where: {
+          id: ura,
+          owner: userId,
+        }, transaction
+      })
+      .then((foundUra) => {
+        if (!foundUra) throw new Error('소유한 Uranium을 찾을 수 없습니다.');
+        else return Path.create({
+          from: userId,
+          to,
+          ura,
+        }, { transaction })
+      })
+      .then((path) => {
+        result.path = path;
+        return Ura.update({
+          owner: to,
+          lastedPath: path.id
+        }, {
+          where: { id: ura },
+          transaction,
+        });
+      })
+      .then((updatedCount) => {
+        if (updatedCount[0] !== 1) throw new Error('해당하는 Ura를 찾을 수 없음');
+        else return User.findOne({ where: { id: userId }, transaction });
+      })
+      .then((fromUser) => {
+        result.user = { };
+        result.user.from = fromUser;
+        return User.findOne({ where: { id: to }, transaction });
+      })
+      .then((toUser) => {
+        result.user.to = toUser;
+        return Ura.findOne({ where: { id: ura }, transaction });
+      })
+      .then((updatedUra) => {
+        result.ura = updatedUra;
+        return User.update({
+          ura: result.user.from.ura - result.ura.current,
+        }, {
+          where: { id: userId },
+          transaction,
+        });
+      })
+      .then((updatedCount) => {
+        if (updatedCount[0] !== 1) throw new Error('Updated된 From User를 찾을 수 없음');
+        else return User.update({
+          ura: result.user.to.ura + result.ura.current,
+        }, {
+          where: { id: to },
+          transaction,
+        });
+      })
+      .then((updatedCount) => {
+        if (updatedCount[0] !== 1) throw new Error('Updated된 To User를 찾을 수 없음');
+        else return;
+      })
+    }).then(() => {
+      result.user.from.ura -= result.ura.current;
+      result.user.to.ura += result.ura.current;
+      res.send(result);
+    }).catch((err) => {
+      console.log('트랜젝션 실패');
+      console.log(err);
+      res.status(500).send({message: '트랙젝션 실패'});
+    });
+  },
+  changeUra(req, res) {
+    const userId = req.user.id;
+    const { id: ura } = req.params;
+    const { bank, current } = req.body;
+    
+    return sequelize.transaction((transaction) => {
       return Path.create({
         from: userId,
-        to,
+        to: bank,
         ura,
       }, { transaction })
       .then((path) => {
         result.path = path;
         return Ura.update({
+          owner: bank,
           lastedPath: path.id
         },{
           where: { id: ura },
@@ -70,10 +146,9 @@ module.exports = {
       })
       .then((updatedCount) => {
         if (updatedCount[0] !== 1) throw new Error('해당하는 Ura를 찾을 수 없음');
-        else return Ura.find({ where: { id: ura } })
-        .then((reply) => {
-          return reply;
-        })
+        else {
+          bankAccount.request.deposit(current)
+        }
       })
     }).then((reply) => {
       result.ura = reply;
@@ -83,8 +158,5 @@ module.exports = {
       console.log(err);
       res.status(500).send({message: '트랙젝션 실패'});
     });
-  },
-  changeUra(req, res) {
-    
   },
 }
