@@ -121,8 +121,12 @@ module.exports = {
       res.send(result);
     }).catch((err) => {
       console.log('트랜젝션 실패');
-      console.log(err);
-      res.status(500).send({message: '트랙젝션 실패'});
+      console.log(err.message);
+      
+      res.status(500).send({
+        message: '트랙젝션 실패',
+        error: err.message,
+      });
     });
   },
   changeUra(req, res) {
