@@ -21,10 +21,13 @@ cd [dir]
 
 ### start localhost mongodb 
 ```mongod
+```
 
 ### start node server
 ```npm install
+```
 ```npm start
+```
 
 ### start chrome client
 chrome -> localhost:3000
