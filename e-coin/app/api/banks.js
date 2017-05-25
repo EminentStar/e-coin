@@ -11,6 +11,6 @@ module.exports = {
       return;
     }
 
-    res.send();
+    res.send({ message: '은행 계좌로 확인되었습니다.' });
   },
 }

@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var bearerToken = require('express-bearer-token');
 var routes = require('./routes');
 
+const bankRequest = require('./app/bank');
+
 var app = express();
  
 app.use(bearerToken({
