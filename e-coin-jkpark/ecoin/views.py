@@ -1,16 +1,18 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.http import require_GET
-from django.views.decorators.http import require_POST
-from .forms import UserCreationForm
-from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect, render_to_response
+from django.http import JsonResponse, HttpResponseRedirect
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.template import RequestContext
+from django.contrib import messages
+
+from .forms import UserCreationForm, LoginForm
 
 
 @require_GET
 def index(request):
-    rendered_values = {'test_val': 'For Test'}
-    return render(request, 'ecoin/main_view.html', rendered_values)
+    rendered_values = {}
+    return render(request, 'ecoin/index.html', rendered_values)
 
 def signup(request):
     if request.method == 'GET':
@@ -21,12 +23,43 @@ def signup(request):
         form = UserCreationForm(request.POST)
 
         if form.is_valid():
-            # form.save()
+            form.save() # save user info
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             email = form.cleaned_data.get('email')
-            # user = authenticate(username=username, password=raw_password)
             print("username: %s, raw_password: %s, email: %s" % (username, raw_password, email))
         
         return redirect('index')
 
+def login_user(request):
+    if request.method == 'GET':
+        return render(request, 'ecoin/registration/login.html', {})
+    elif request.method == 'POST':
+        form = LoginForm(request.POST)
+        print('in POST')
+        username = request.POST['username']
+        password = request.POST['password']
+
+        print("username: %s, password: %s" % (username, password))
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            print('Correct Password')
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect('/main/')
+        else:
+            print('Incorrect')
+            messages.add_message(request, messages.INFO, 'Incorrect info!')
+            return redirect('index')
+
+@login_required(login_url='/login/')
+def main(request):
+    rendered_values = {}
+    return render(request, 'ecoin/main_view.html', rendered_values)
+
+@login_required(login_url='/login/')
+def logout_user(request):
+    logout(request)
+    rendered_values = {}
+    return redirect('index')
