@@ -15,7 +15,10 @@ var UserSchema = mongoose.Schema({
 	},
 	name: {
 		type: String
-	}
+	},
+    money: {
+        type: Number
+    }
 });
 
 var User = module.exports = mongoose.model('User', UserSchema);
