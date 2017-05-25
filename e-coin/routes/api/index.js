@@ -2,14 +2,14 @@ const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
-const { banks, uras, paths } = require('../../app/api');
+const { banks, uras, paths, me } = require('../../app/api');
 const config = require('../../config');
 
 function verify (req, res, next) {
   const token = req.token;
   jwt.verify(token, config.JWT_TOKEN, (err, decoded) => {
     if (err) {
-      res.status(403).send({message: '로그인 토큰 이상함'});
+      return res.status(403).send({message: '로그인 토큰 이상함'});
     }
     req.user = decoded;
 
@@ -27,12 +27,14 @@ function verifyBank(req, res, next) {
   const userId = req.user.id;
 
   if (!isBank(userId)) {
-    res.status(500).send({ message: '은행 계좌가 아닙니다.' });
+    return res.status(500).send({ message: '은행 계좌가 아닙니다.' });
   }
 
   req.user.isBank = true;
   next();
 }
+
+router.get('/me', verify, me.getMe);
 
 router.get('/banks', verify, banks.isBank);
 

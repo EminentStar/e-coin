@@ -17,7 +17,8 @@ module.exports = {
       offset,
     })
     .then((reply) => {
-      res.send(reply);
+      res.set('X-ECOIN-Total-Count', reply.count)
+      res.send(reply.rows);
     });
   },
   getUra(req, res) {
