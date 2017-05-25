@@ -250,6 +250,8 @@ module.exports = {
           if (countUras >= to) return false;
         });
 
+        if (countUras < to) throw new Error('Uranium이 부족합니다.');
+
         if (_.last(srcUras).current == to) {
           return [_.last(srcUras)];
         }
