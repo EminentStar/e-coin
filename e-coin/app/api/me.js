@@ -4,7 +4,9 @@ module.exports = {
   getMe(req, res) {
     const id = req.user.id;
 
-    User.findOne({ id })
+    User.findOne({
+      where: { id }
+    })
     .then((reply) => {
       res.send(reply);
     });

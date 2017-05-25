@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const { sequelize, User, Ura, Path } = require('../../data');
 
@@ -5,17 +6,23 @@ module.exports = {
   getUras(req, res) {
     const userId = req.user.id;
     let { offset, limit } = req.body;
+    const { current } = req.query;
+
+    const options = {
+      where: {
+        owner: userId,
+      },
+    };
 
     if (!offset) offset = 0;
     if (!limit || limit > 10) limit = 10;
 
-    Ura.findAndCountAll({
-      where: {
-        owner: userId,
-      },
-      limit,
-      offset,
-    })
+    options.offset = offset;
+    options.limit = limit;
+
+    if (current) options.where.current = current;
+
+    Ura.findAndCountAll(options)
     .then((reply) => {
       res.set('X-ECOIN-Total-Count', reply.count);
       res.send(reply.rows);
@@ -129,39 +136,117 @@ module.exports = {
       });
     });
   },
-  changeUra(req, res) {
+  divideUra(req, res) {
     const userId = req.user.id;
-    const { id: ura } = req.params;
-    const { bank, current } = req.body;
-    
+    const {
+      bank,
+      to,
+      units: _units,
+    } = req.body;
+    let deleted;
+    const units = JSON.parse(_units);
+
     return sequelize.transaction((transaction) => {
-      return Path.create({
-        from: userId,
-        to: bank,
-        ura,
-      }, { transaction })
-      .then((path) => {
-        result.path = path;
-        return Ura.update({
-          owner: bank,
-          lastedPath: path.id
-        },{
-          where: { id: ura },
+      return User.findOne({
+        where: { id: userId }
+      })
+      .then((reply) => {
+        if (reply.ura < to) return res.status(500).send({ message: '당신 의도가 뭐야?? 돈이 없잖아 ㅠ.ㅠ' });
+        return Ura.findOne({
+          where: { owner: userId, current: { $gte: to } },
+          order: [['createdAt', 'ASC']],
         });
       })
-      .then((updatedCount) => {
-        if (updatedCount[0] !== 1) throw new Error('해당하는 Ura를 찾을 수 없음');
-        else {
-          bankAccount.request.deposit(current)
-        }
-      })
-    }).then((reply) => {
-      result.ura = reply;
-      res.send(result);
-    }).catch((err) => {
+      .then((ura) => {
+        if (!ura) throw new Error('적당한 Uranium이 없습니다.');
+
+        let inserts = [ ];
+        let srcUras = ura.current;
+
+        if (srcUras == to) return { deleted: null, uras: [ura] };
+
+        ura.destroy();
+        deleted = ura;
+        
+        _.forEach(units, (value) => {
+          if (value.unit > to) return;
+
+          const unit = value.unit;
+          const quotient = parseInt(srcUras / value.unit);
+          inserts = inserts.concat(_.fill(Array(quotient), { owner: userId, current: unit }));
+          srcUras %= value.unit;
+        });
+
+        return Ura.bulkCreate(inserts, transaction);
+      });
+    })
+    .then((reply) => {
+      res.send({ deleted, uras: reply });
+    })
+    .catch((err) => {
       console.log('트랜젝션 실패');
       console.log(err);
-      res.status(500).send({message: '트랙젝션 실패'});
-    });
+      res.status(500).send({
+        message: '트랜젝션 실패',
+        error: err.message,
+      });
+    })
+  },
+  mergeUra(req, res) {
+    const userId = req.user.id;
+    const {
+      bank,
+      to,
+    } = req.body;
+
+    const srcUras = [];
+    const deletedUras = [];
+
+    return sequelize.transaction((transaction) => {
+      return User.findOne({
+        where: { id: userId }
+      })
+      .then((reply) => {
+        if (reply.ura < to) return res.status(500).send({ message: '당신 의도가 뭐야?? 돈이 없잖아 ㅠ.ㅠ' });
+        return Ura.findAll({
+          where: { owner: userId, current: { $lte: to } },
+          order: [['createdAt', 'ASC']],
+        });
+      })
+      .then((uras) => {
+        if (_.isEmpty(uras)) throw new Error('적당한 Uranium이 없습니다.');
+        let countUras = 0;
+        _.forEach(uras, (ura) => {
+          countUras += ura.current;
+          srcUras.push(ura);
+          if (countUras >= to) return false;
+        });
+
+        if (_.last(srcUras).current == to) {
+          return [_.last(srcUras)];
+        }
+
+        _.forEach(srcUras, (ura) => {
+          deletedUras.push(ura);
+          ura.destroy();
+        });
+        countUras -= to;
+        const inserts = [];
+        inserts.push({ owner: userId, current: to });
+        if (countUras != 0) inserts.push({ owner: userId, current: countUras });
+        return Ura.bulkCreate(inserts, transaction);
+      });
+    })
+    .then((reply) => {
+      res.send({ deletedUras, mergedUras: reply });
+    })
+    .catch((err) => {
+      console.log('트랜젝션 실패');
+      console.log(err);
+      res.status(500).send({
+        message: '트랜젝션 실패',
+        error: err.message,
+      });
+    })
   },
 }
