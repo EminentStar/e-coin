@@ -1,0 +1,4 @@
+dev:
+        redis: [
+                { host: '<HOST>', port: <PORT_NUMBER>}
+        ]
