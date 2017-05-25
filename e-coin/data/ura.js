@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('./sequelize');
 
+const Path = require('./path');
+
 module.exports = sequelize.define('ura', {
   id: {
     primaryKey: true,
@@ -13,10 +15,15 @@ module.exports = sequelize.define('ura', {
   owner: {
     type: Sequelize.UUID,
   },
+  lastedPath: {
+    type: Sequelize.UUID,
+  },
 },{
   defaultScope: {
     attributes: {
       exclude: ['owner', 'createdAt', 'updatedAt'],
     }
   },
+  scopes: {
+  }
 });

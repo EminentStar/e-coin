@@ -16,6 +16,8 @@ function verify (req, res, next) {
 }
 
 router.get('/uras', verify, uras.getUras)
-      .post('/uras', verify, uras.createUra);
+      .post('/uras', verify, uras.createUra)
+      .get('/uras/:id', verify, uras.getUra)
+      .put('/uras/:id', verify, uras.transferUra);
 
 module.exports = router;
