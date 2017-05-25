@@ -1,7 +1,8 @@
+const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
-const { uras, paths } = require('../../app/api');
+const { banks, uras, paths } = require('../../app/api');
 const config = require('../../config');
 
 function verify (req, res, next) {
@@ -11,12 +12,32 @@ function verify (req, res, next) {
       res.status(403).send({message: '로그인 토큰 이상함'});
     }
     req.user = decoded;
+
+    if (isBank(req.user.id)) req.user.isBank = true;
     next();
   });
 }
 
+function isBank(userId) {
+  if (_.indexOf(config.BANK_ACCOUNT, userId) == -1) return false;
+  else return true;
+}
+
+function verifyBank(req, res, next) {
+  const userId = req.user.id;
+
+  if (!isBank(userId)) {
+    res.status(500).send({ message: '은행 계좌가 아닙니다.' });
+  }
+
+  req.user.isBank = true;
+  next();
+}
+
+router.get('/banks', verify, banks.isBank);
+
 router.get('/uras', verify, uras.getUras)
-      .post('/uras', verify, uras.createUra)
+      .post('/uras', verify, verifyBank, uras.createUra)
       .get('/uras/:id', verify, uras.getUra)
       .get('/uras/:id/paths', verify, paths.getPaths)
       .put('/uras/:id', verify, uras.transferUra);
