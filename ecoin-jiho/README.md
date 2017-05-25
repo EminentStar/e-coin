@@ -1,7 +1,9 @@
 
-naver hack day : e-coin
+Naver Hack Day : e-coin
 
 Jiho Choi
+
+---
 
 안녕하세요 최지호입니다.
 비트코인 GG 치고, 나이브코인 GG 치고, 겉모양만 거래소 구현해 봤습니다.
@@ -9,30 +11,33 @@ Jiho Choi
 감사합니다.
 최지호 드림.
 
+---
+
 #clone
 git clone [url]
 cd [dir]
 
 
-#start localhost mongodb 
-mongod
 
-#start node server
-npm install
-npm start
+### start localhost mongodb 
+```mongod
 
-#start chrome client
+### start node server
+```npm install
+```npm start
+
+### start chrome client
 chrome -> localhost:3000
 
 
-ID 01
-Username: jihochoi / Password: 1234
-ID 02
-Username: jihochoi1 / Password: 1234
-ID 03
-Username: jihocho2 / Password: 1234
+#### ID 01
+#### Username: jihochoi / Password: 1234
+#### ID 02
+#### Username: jihochoi1 / Password: 1234
+#### ID 03
+#### Username: jihocho2 / Password: 1234
 
-
+# 
 Dependency
 	- node.js
 	- mongodb
