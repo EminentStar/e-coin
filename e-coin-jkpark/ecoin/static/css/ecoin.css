@@ -1,0 +1,28 @@
+h1 a {
+    color: white;
+}
+
+.page-header {
+    background-color: #26a69a;
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+}
+
+#id_url {
+    width: 80%;
+}
+
+.fetch.btn.btn-default{
+    width: 70px;
+}
+
+.ecoin_table{
+    border: solid black 1px;
+    width: 300px;
+    height: 300px;
+}
+
+.ecoin_img{
+    max-width: 100%;
+    height: 100%;
+}
