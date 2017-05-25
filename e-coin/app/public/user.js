@@ -3,10 +3,6 @@ const config = require('../../config');
 const jwt = require('jsonwebtoken');
 
 module.exports = {
-  getList(req, res) {
-    console.log('GET /public/users');
-    res.send();
-  },
   getUser(req, res) {
     const { id } = req.params;
     User.findOne({ where: { id }, include: Ura })
