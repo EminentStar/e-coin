@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
-const { uras } = require('../../app/api');
+const { uras, paths } = require('../../app/api');
 const config = require('../../config');
 
 function verify (req, res, next) {
@@ -18,6 +18,9 @@ function verify (req, res, next) {
 router.get('/uras', verify, uras.getUras)
       .post('/uras', verify, uras.createUra)
       .get('/uras/:id', verify, uras.getUra)
+      .get('/uras/:id/paths', verify, paths.getPaths)
       .put('/uras/:id', verify, uras.transferUra);
+
+router.get('/paths', verify, paths.getPaths);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const uras = require('./uras');
-// const paths = require('./paths');
+const paths = require('./paths');
 
 module.exports = {
-  // paths,
+  paths,
   uras,
 }
