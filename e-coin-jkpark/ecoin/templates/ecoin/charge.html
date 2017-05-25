@@ -9,7 +9,7 @@
             </button>
 	    <p>
 
-	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'charge' %}'">
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'recharge_money' %}'">
                CHARGE
             </button>
 
@@ -35,11 +35,19 @@
     </div>
     <br>
 
-    <form id="recharge" method="post" action="{% url 'charge' %}">
+    <form id="recharge" method="post" action="{% url 'recharge_money' %}">
 	{% csrf_token %}
 	{{money_form.as_p}}
         <button class="btn waves-effect waves-light btn-large col s2" type="submit">
            RECHARGE MONEY
+        </button>
+    </form>
+
+    <form id="exchange_ecoin" method="post" action="{% url 'exchange_ecoin' %}">
+	{% csrf_token %}
+	{{ecoin_form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           EXCHANGE COIN
         </button>
     </form>
 {% endblock content %}
