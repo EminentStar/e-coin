@@ -1,0 +1,11 @@
+{% extends 'ecoin/base.html' %}
+
+{% block content %}
+<form id="signup" method="post" action="{% url 'signup' %}">
+	{% csrf_token %}
+	{{form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           SIGNUP 
+        </button>
+</form>
+{% endblock content %}
