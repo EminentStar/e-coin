@@ -16,9 +16,12 @@ def scrap_searched_page(query, base_url=SHOPPING_URL):
     for p in product_tags:
         title = p.find('a', {'class': 'tit'})
         price = p.find('span', {'class':'num _price_reload'})
+        img = p.find('img', {'class': '_productLazyImg'})
 
         title = title.text.strip()
         price = int(price.text.strip().replace(',',''))
-        products.append({'title': title, 'price': price})
+        img = img.get('data-original')
+        products.append({'title': title, 'price': price, 'img':img})
     
     return products
+print(scrap_searched_page('김밥'))
