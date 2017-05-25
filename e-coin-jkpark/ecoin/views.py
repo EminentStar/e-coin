@@ -11,6 +11,8 @@ from .forms import UserCreationForm, LoginForm
 from .models import User, CoinAccount
 
 
+LOGIN_URI_PATH = '/login/'
+
 @require_GET
 def index(request):
     if request.user.is_authenticated():
@@ -62,13 +64,13 @@ def login_user(request):
             messages.add_message(request, messages.INFO, 'Incorrect info!')
             return redirect('index')
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def logout_user(request):
     logout(request)
     rendered_values = {}
     return redirect('index')
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def main(request):
     current_user = User.objects.get(username=request.user)
     coin_account = CoinAccount.objects.get(username=current_user)
@@ -76,22 +78,22 @@ def main(request):
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     return render(request, 'ecoin/main_view.html', rendered_values)
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def charge(request):
     rendered_values = {}
     return render(request, 'ecoin/charge.html', rendered_values)
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def go_shopping(request):
     rendered_values = {}
     return render(request, 'ecoin/shopping.html', rendered_values)
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def refund(request):
     rendered_values = {}
     return render(request, 'ecoin/refund.html', rendered_values)
 
-@login_required(login_url='/login/')
+@login_required(login_url=LOGIN_URI_PATH)
 def remit(request):
     rendered_values = {}
     return render(request, 'ecoin/remittance.html', rendered_values)
