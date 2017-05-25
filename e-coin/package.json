@@ -10,8 +10,12 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
     "express": "~4.15.2",
+    "express-bearer-token": "^2.1.0",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^7.4.1",
     "morgan": "~1.8.1",
+    "mysql": "^2.13.0",
+    "sequelize": "^3.30.4",
     "serve-favicon": "~2.4.2"
   }
 }
