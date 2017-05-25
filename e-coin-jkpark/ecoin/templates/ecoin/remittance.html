@@ -28,16 +28,19 @@
     </div>
     <br>
     {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-	<li>
-	    <div class="alert alert-{{message.level_tag}} role="alert">
-	        {{ message.message }}
-	    </div>
-	</li>
-	{% endfor %}
-    </ul>
+    <div class="row">
+        <div class="col s12 m5">
+            <div class="card-panel teal">
+                {% for message in messages %}
+                    <span class="white-text">
+	            {{ message.message }}
+                    </span>
+	        {% endfor %}
+            </div>
+        </div>
+    </div>
     {% endif %}
+
     <div class="row">
         <p>username: {{username}}</p>
         <p>real_money: {{coin_account.real_money}}</p>
