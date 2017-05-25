@@ -70,7 +70,10 @@ def logout_user(request):
 
 @login_required(login_url='/login/')
 def main(request):
-    rendered_values = {}
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
     return render(request, 'ecoin/main_view.html', rendered_values)
 
 @login_required(login_url='/login/')
