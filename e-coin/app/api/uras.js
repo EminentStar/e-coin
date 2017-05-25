@@ -50,11 +50,39 @@ module.exports = {
   createUra(req, res) {
     const userId = req.user.id;
     const { current } = req.body;
+    let updatedUser;
 
-    Ura.create({ owner: userId, current })
-    .then((result) => {
-      res.send(result);
-    });
+    return sequelize.transaction((transaction) => {
+      return User.findOne({
+        where: { id: userId }
+      })
+      .then((user) => {
+        updatedUser = user;
+        return user.update({
+          ura: user.ura + Number(current),
+        });
+      })
+      .then((updatedUser) => {
+        if (!updatedUser) throw new Error('업데이트된 User를 찾을 수 없습니다.');
+
+        return Ura.create({ owner: userId, current });
+      })
+    })
+    .then((reply) => {
+      res.send({
+        updatedUser,
+        createdUra: reply,
+      });
+    })
+    .catch((err) => {
+      console.log('트랜젝션 실패');
+      console.log(err.message);
+
+      res.status(500).send({
+        message: '트랙젝션 실패',
+        error: err.message,
+      });
+    })
   },
   transferUra(req, res) {
     const userId = req.user.id;
