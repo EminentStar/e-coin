@@ -27,4 +27,28 @@
         </form>
     </div>
     <br>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+	<li>
+	    <div class="alert alert-{{message.level_tag}} role="alert">
+	        {{ message.message }}
+	    </div>
+	</li>
+	{% endfor %}
+    </ul>
+    {% endif %}
+    <div class="row">
+        <p>username: {{username}}</p>
+        <p>real_money: {{coin_account.real_money}}</p>
+        <p>ecoin: {{coin_account.ecoin}}</p>
+    </div>
+    <br>
+    <form id="remit" method="post" action="{% url 'remit' %}">
+	{% csrf_token %}
+	{{remit_form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           REMIT
+        </button>
+    </form>
 {% endblock content %}

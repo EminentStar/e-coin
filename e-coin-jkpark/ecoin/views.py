@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.db import transaction
 
-from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm, ExchangeEcoinForm
+from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm, ExchangeEcoinForm, RemitForm
 from .models import User, CoinAccount
 
 
@@ -143,8 +143,30 @@ def refund(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def remit(request):
-    rendered_values = {}
-    return render(request, 'ecoin/remittance.html', rendered_values)
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
+    if request.method == 'GET':
+        remit_form = RemitForm()
+        rendered_values['remit_form'] = remit_form
+        
+        return render(request, 'ecoin/remittance.html', rendered_values)
+    elif request.method == 'POST':
+        remit_form = RemitForm(request.POST)
+
+        if remit_form.is_valid():
+            receiver = remit_form.cleaned_data.get('receiver')
+            ecoin_cnt = remit_form.cleaned_data.get('ecoin_cnt')
+           
+            validation_status = remit_form.validate_user(request.user.username)
+            if validation_status.get('status'):
+                remit_form.save(request.user.username)
+            else:
+                messages.add_message(request, messages.ERROR, 
+                    validation_status.get('msg'))
+
+        return redirect('remit')
 
 def create_user_in_atomic_transaction(user, username):
     """This function saves User and CoinAccount object in atomic transaction."""

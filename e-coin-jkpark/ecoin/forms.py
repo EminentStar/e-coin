@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
+from django.db import transaction
 
 from .models import CoinAccount
 
@@ -28,7 +29,7 @@ class UserCreationForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(max_length=254)
+    username = forms.CharField(max_length=150)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
 
@@ -76,4 +77,61 @@ class ExchangeEcoinForm(forms.ModelForm):
     def check_enough_money_in_coin_account(self, coin_account):
         """ This function compare CoinAccount's real money to money typed."""
         return coin_account.real_money >= self.cleaned_data["real_money"]
+
+
+class RemitForm(forms.Form):
+    receiver = forms.CharField(max_length=150)
+    ecoin_cnt = forms.IntegerField()
+
+    def save(self, username, commit=True):
+        user = User.objects.get(username=username)
+        coin_account = CoinAccount.objects.get(username=user)
+
+        receiver_name = self.cleaned_data["receiver"]
+        ecoin_sent = self.cleaned_data["ecoin_cnt"]
+
+        received_user = User.objects.get(username=receiver_name)
+        receiver_coin_account = CoinAccount.objects.get(username=received_user)
+        coin_account.ecoin -= ecoin_sent
+        receiver_coin_account.ecoin += ecoin_sent
+
+        try:
+            with transaction.atomic():
+                coin_account.save()
+                receiver_coin_account.save()
+        except IntegrityError as e:
+            print(e)
+            return False
+        else:
+            return True
+
+    def validate_user(self, current_username):
+        returned_dict = {'status': True, 'msg': 'Success'}
+
+        user = User.objects.get(username=current_username)
+        coin_account = CoinAccount.objects.get(username=user)
+        
+        if current_username == self.cleaned_data['receiver']:
+            returned_dict['status'] = False
+            returned_dict['msg'] = 'You cannot remit ecoin to yourself'
+        elif self.check_enough_ecoin_in_coin_account(coin_account) == False:
+            returned_dict['status'] = False
+            returned_dict['msg'] = 'You cannot exceed your limit!'
+        elif self.exists_user() == False:
+            returned_dict['status'] = False
+            returned_dict['msg'] = 'The user Not Found!'
+        
+        return returned_dict
+            
+    def exists_user(self):
+        user_cnt = User.objects.filter(username=self.cleaned_data['receiver']).count()
+        
+        if user_cnt != 0:
+            return True
+        else:
+            return False
+
+    def check_enough_ecoin_in_coin_account(self, coin_account):
+        """ This function compare CoinAccount's ecoin to ecoin typed."""
+        return coin_account.ecoin >= self.cleaned_data["ecoin_cnt"]
 
