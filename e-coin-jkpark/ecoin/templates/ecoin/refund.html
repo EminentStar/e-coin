@@ -27,4 +27,34 @@
         </form>
     </div>
     <br>
+
+    {% if messages %}
+    <div class="row">
+        <div class="col s12 m5">
+            <div class="card-panel teal">
+                {% for message in messages %}
+                    <span class="white-text">
+	            {{ message.message }}
+                    </span>
+	        {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <p>username: {{username}}</p>
+        <p>real_money: {{coin_account.real_money}}</p>
+        <p>ecoin: {{coin_account.ecoin}}</p>
+    </div>
+    <br>
+
+    <form id="refund" method="post" action="{% url 'refund' %}">
+	{% csrf_token %}
+	{{refund_form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           REFUND E-COIN
+        </button>
+    </form>
+
 {% endblock content %}

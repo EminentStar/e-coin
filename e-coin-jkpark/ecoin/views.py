@@ -7,7 +7,8 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.db import transaction
 
-from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm, ExchangeEcoinForm, RemitForm
+from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm, \
+        ExchangeEcoinForm, RemitForm, RefundForm
 from .models import User, CoinAccount
 
 
@@ -138,8 +139,28 @@ def go_shopping(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def refund(request):
-    rendered_values = {}
-    return render(request, 'ecoin/refund.html', rendered_values)
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
+    if request.method == 'GET':
+        refund_form = RefundForm()
+        rendered_values['refund_form'] = refund_form
+
+        return render(request, 'ecoin/refund.html', rendered_values)
+    elif request.method == 'POST':
+        refund_form = RefundForm(request.POST)
+
+        if refund_form.is_valid():
+            validation_status = refund_form.validate_ecoin(request.user.username)
+            if validation_status.get('status'):
+                refund_form.save(request.user.username)
+            else:
+                messages.add_message(request, messages.ERROR, 
+                        validation_status.get('msg'))
+
+            return redirect('refund')
+
 
 @login_required(login_url=LOGIN_URI_PATH)
 def remit(request):

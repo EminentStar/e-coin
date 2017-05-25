@@ -135,3 +135,34 @@ class RemitForm(forms.Form):
         """ This function compare CoinAccount's ecoin to ecoin typed."""
         return coin_account.ecoin >= self.cleaned_data["ecoin_cnt"]
 
+
+class RefundForm(forms.Form):
+    ecoin_cnt = forms.IntegerField()
+
+    def save(self, username, commit=True):
+        user = User.objects.get(username=username)
+        coin_account = CoinAccount.objects.get(username=user)
+        ecoin_sent = self.cleaned_data["ecoin_cnt"]
+
+        coin_account.ecoin -= ecoin_sent
+        coin_account.real_money += ecoin_sent * ONE_ECOIN_PRICE
+
+        coin_account.save()
+
+    def validate_ecoin(self, current_username):
+        returned_dict = {'status': True, 'msg': 'Success'}
+
+        user = User.objects.get(username=current_username)
+        coin_account = CoinAccount.objects.get(username=user)
+        
+        ecoin_cnt = self.cleaned_data["ecoin_cnt"]
+         
+        if ecoin_cnt <= 0:
+            returned_dict['status'] = False
+            returned_dict['msg'] = 'Please input a correct number!'
+        elif coin_account.ecoin < ecoin_cnt:
+            returned_dict['status'] = False
+            returned_dict['msg'] = 'You cannot exceed your limit!'
+
+        return returned_dict
+
