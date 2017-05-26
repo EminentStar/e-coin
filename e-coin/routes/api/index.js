@@ -2,7 +2,7 @@ const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
-const { banks, uras, paths, me } = require('../../app/api');
+const { banks, uras, paths, pays, me } = require('../../app/api');
 const config = require('../../config');
 
 function verify (req, res, next) {
@@ -35,6 +35,10 @@ function verifyBank(req, res, next) {
 }
 
 router.get('/me', verify, me.getMe);
+
+router.get('/pays', verify, pays.getList)
+      .post('/pays', verify, pays.payMoney)
+      .put('/pays', verify, pays.changeToUra);
 
 router.get('/banks', verify, banks.isBank);
 
