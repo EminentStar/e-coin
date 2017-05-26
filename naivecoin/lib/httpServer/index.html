@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<title>Insert title here</title>
+
+<script>
+function changeId(obj) 
+{
+	var url = "/operator/wallets/" + obj.value + "/addresses/" + document.getElementById("addr").value + "/balance"
+ 	document.getElementById("bal").setAttribute("action", url);
+}
+function changeAddress(obj) 
+{
+	var url = "/operator/wallets/" +  document.getElementById("id").value + "/addresses/" + document.getElementById("addr").value + "/balance"
+ 	document.getElementById("bal").setAttribute("action", url);
+}
+function getBal() {
+        var url = "/operator/wallets/" +  document.getElementById("id").value + "/addresses/" + document.getElementById("addr").value + "/balance"
+
+$.get(url, function(data){ alert("보유 코인: " + data.balance); });
+
+}
+function send() {
+
+var params= '{ "fromAddress": '+document.getElementById("fromaddr").value+', "toAddress": '+document.getElementById("toaddr").value+', "amount": '+document.getElementById("amount").value+', "changeAddress": '+document.getElementById("fromaddr").value+' }';
+var url = "/operator/wallets/"+document.getElementById("fromid").value+"/transactions";
+
+ $.ajax({      
+        type:"POST",  
+        url:url,      
+        data:params,      
+        success:function(args){   
+            $("#result").html(args); 
+        },   
+        beforeSend:showRequest,  
+        error:function(e){  
+            alert(e.responseText);  
+        }  
+    });  
+
+
+}
+</script>
+
+</head>
+
+<body>
+<div>
+<span>id: 11b473913e1c1a5b21b4567e7eb7c3d68f5dff5bf664ab203552807b0c830a20</span> </br>
+<span>address: fa623cf0d1a50b02c2ab778f50607394997985626327567822e0bec7dac8f552</span> 
+<span>address2: ed376bb3bbf015df8637f214e7dcdb8c430349ee8be6a0cb5f65bb618532c9e1</span> 
+</div>
+	<div>
+ 채굴 하기
+ <form action="/miner/mine" method="post" enctype="multipart/form-data">
+    address <input type="text" name="username">
+    <p>
+      file :
+    <input type="file" name="myfile1">
+    <input type="submit" value="채굴">
+ </form>
+ </div>
+
+ <div>
+ 잔액 확인
+<div>
+    id <input id="id" type="text" name="username" onchange="changeId(this)"></br>
+    address <input id="addr" type="text" name="username" onchange="changeAddress(this)">
+	<button onclick="getBal()">조회</button>
+</div>
+ <div>
+ 송금
+<div>
+    fromID <input id="fromID" type="text" name="username" onchange="changeAddress(this)">
+    PW <input id="PW" type="text" name="username" onchange="changeAddress(this)">
+    fromAddress <input id="fromaddr" type="text" name="username" onchange="changeAddress(this)">
+    toAaddress <input id="toaddr" type="text" name="username" onchange="changeAddress(this)">
+    amount <input id="amount" type="text" name="username" onchange="changeAddress(this)">
+	<button onclick="send()">조회</button>
+</div>
+
+ </div>
+
+</body>
+
+</html>
+
