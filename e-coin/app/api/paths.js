@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const express = require('express');
 const { sequelize, Ura, Path } = require('../../data');
 
 module.exports = {
