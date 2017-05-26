@@ -193,16 +193,16 @@ module.exports = {
 
         if (srcUras == to) return { deleted: null, uras: [ura] };
 
-        ura.destroy();
+        ura.update({ expired: true });
         deleted = ura;
         
         _.forEach(units, (value) => {
-          if (value.unit > to) return;
+          if (value > to) return;
 
           const unit = value.unit;
-          const quotient = parseInt(srcUras / value.unit);
+          const quotient = parseInt(srcUras / value);
           inserts = inserts.concat(_.fill(Array(quotient), { owner: userId, current: unit }));
-          srcUras %= value.unit;
+          srcUras %= value;
         });
 
         return Ura.bulkCreate(inserts, transaction);
@@ -258,7 +258,7 @@ module.exports = {
 
         _.forEach(srcUras, (ura) => {
           deletedUras.push(ura);
-          ura.destroy();
+          ura.update({ expired: true });
         });
         countUras -= to;
         const inserts = [];

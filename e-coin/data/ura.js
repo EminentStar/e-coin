@@ -18,6 +18,9 @@ module.exports = sequelize.define('ura', {
   lastedPath: {
     type: Sequelize.UUID,
   },
+  expired: {
+    type: Sequelize.BOOLEAN,
+  }
 },{
   defaultScope: {
     attributes: {
