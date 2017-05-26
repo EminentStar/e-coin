@@ -1,0 +1,44 @@
+{% extends 'ecoin/base.html' %}
+
+{% block content %}
+    <div class="row">
+        <form method="POST" class="col s12">{% csrf_token %}
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'logout_user' %}'">
+               LOGOUT
+            </button>
+	    <p>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'recharge_money' %}'">
+               CHARGE
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'go_shopping' %}'">
+               SHOPPING
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'refund' %}'">
+               REFUND
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'remit' %}'">
+               REMITTANCE
+            </button>
+        </form>
+    </div>
+    <table class="bordered">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Money</th>
+                <th>E-Coin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{username}}</td>
+                <td>{{coin_account.real_money}}</td>
+                <td>{{coin_account.ecoin}}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock content %}

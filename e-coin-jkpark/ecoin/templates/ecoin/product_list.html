@@ -1,0 +1,76 @@
+{% extends 'ecoin/base.html' %}
+
+{% block content %}
+    <h5>Shopping</h5>
+    <div class="row">
+        <form method="POST" class="col s12">{% csrf_token %}
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'logout_user' %}'">
+               LOGOUT
+            </button>
+	    <p>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'recharge_money' %}'">
+               CHARGE
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'go_shopping' %}'">
+               SHOPPING
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'refund' %}'">
+               REFUND
+            </button>
+
+	    <button class="btn waves-effect waves-light btn-large col s2" type="button" name="action_ecoin_signin" onclick="location.href='{% url 'remit' %}'">
+               REMITTANCE
+            </button>
+        </form>
+    </div>
+    <br>
+
+    <table class="bordered">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Money</th>
+                <th>E-Coin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{username}}</td>
+                <td>{{coin_account.real_money}}</td>
+                <td>{{coin_account.ecoin}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <form id="search" method="post" action="{% url 'go_shopping' %}">
+	{% csrf_token %}
+	{{search_product_form.as_p}}
+        <button class="btn waves-effect waves-light btn-large col s2" type="submit">
+           SEARCH
+        </button>
+    </form>
+
+    {% if products %}
+    <ul class="collection">
+	{% for product in products %}
+	<form id='buyform{{forloop.counter}}' method='post' action="{% url 'buy_product' %}">{% csrf_token %}
+	<li class="collection-item avatar">
+		<img src="{{product.img}}" alt="" class="circle">
+	    <span class="title">
+		<input type='hidden' name='title' value="{{product.title}}">
+		{{product.title}}
+		</input>
+	    </span>
+	    <p><input type="hidden" name='price' value="{{product.price}}">{{product.price}}</input> Won</p>
+	    <p><input type="hidden" name='ecoin_price' value="{{product.ecoin_price}}">{{product.ecoin_price}}</input> E-coin</p>
+	    <button type="submit" class="btn waves-effect waves-light">buy</button>
+	</li>
+	</form>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+{% endblock content %}
