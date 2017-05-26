@@ -10,8 +10,10 @@ urlpatterns = [
     url(r'login/$', views.login_user, name='login_user'),
     url(r'logout/$', views.logout_user, name='logout_user'),
     url(r'main/$', views.main, name='main'),
-    url(r'charge/$', views.charge, name='charge'),
+    url(r'recharge_money/$', views.recharge_money, name='recharge_money'),
+    url(r'exchange_ecoin/$', views.exchange_ecoin, name='exchange_ecoin'),
     url(r'go_shopping/$', views.go_shopping, name='go_shopping'),
+    url(r'buy_product/$', views.buy_product, name='buy_product'),
     url(r'refund/$', views.refund, name='refund'),
     url(r'remit/$', views.remit, name='remit'),
 ]
