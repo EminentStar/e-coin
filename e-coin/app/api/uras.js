@@ -31,10 +31,6 @@ module.exports = {
   getUra(req, res) {
     const userId = req.user.id;
     const { id } = req.params;
-    let { offset, limit } = req.body;
-
-    if (!offset) offset = 0;
-    if (!limit || limit > 10) limit = 10;
 
     Ura
     .findOne({
@@ -278,5 +274,71 @@ module.exports = {
         error: err.message,
       });
     })
+  },
+  refundUra(req, res) {
+    const id = req.user.id;
+    const { id: uraId } = req.params;
+    const bankAccount = config.BANK_ACCOUNT;
+
+    return sequelize.transaction((transaction) => {
+      return Ura.findOne({
+        where: {
+          owner: id,
+          id: uraId,
+        },
+      })
+      .then((ura) => {
+        if(!ura) throw new Error('해당 Uranium이 없습니다.');
+        
+        return Path.create({
+          from: id,
+          to: bankAccount,
+          ura: uraId,
+        }, { transaction })
+        .then((path) => {
+          return ura.update({
+            owner: bankAccount,
+          }, { transaction });
+        });
+      })
+      .then((updatedUra) => {
+        return User.findOne({ where: { id } })
+        .then((userFrom) => {
+          if (!userFrom) throw new Error('From 유저를 찾을 수 없습니다.');
+          return userFrom.update({
+            ura: userFrom.ura - updatedUra.current,
+          }, { transaction });
+        })
+        .then((updatedFromUser) => {
+          if(!updatedFromUser) throw new Error('업데이트된 From 유저가 없습니다.');
+          return User.findOne({ where: {
+            id: bankAccount,
+          }});
+        })
+        .then((userTo) => {
+          if (!userTo) throw new Error('To 유저를 찾을 수 없습니다.');
+          return userTo.update({
+            ura: userTo.ura + updatedUra.current,
+          }, { transaction }).then(() => updatedUra);
+        });
+      })
+      .then((updatedUra) => {
+        return Pay.create({
+          user: id,
+          money: updatedUra.current * 100,
+        }, { transaction });
+      });
+    })
+    .then((reply) => {
+      res.send(reply);
+    })
+    .catch((err) => {
+      console.log('트랜젝션 실패');
+      console.log(err);
+      res.status(500).send({
+        message: '트랜젝션 실패',
+        error: err.message,
+      });
+    });
   },
 }

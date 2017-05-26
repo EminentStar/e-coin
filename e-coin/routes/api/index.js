@@ -45,6 +45,7 @@ router.get('/banks', verify, banks.isBank);
 router.get('/uras', verify, uras.getUras)
       .post('/uras', verify, verifyBank, uras.createUra)
       .get('/uras/:id', verify, uras.getUra)
+      .delete('/uras/:id', verify, uras.refundUra)
       .get('/uras/:id/paths', verify, paths.getPaths)
       .put('/uras/:id', verify, uras.transferUra)
       .post('/uras/divide', verify, verifyBank, uras.divideUra)
