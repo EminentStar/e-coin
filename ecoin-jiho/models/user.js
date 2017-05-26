@@ -16,7 +16,7 @@ var UserSchema = mongoose.Schema({
 	name: {
 		type: String
 	},
-    money: {
+    currentBalance: {
         type: Number
     }
 });
@@ -40,6 +40,34 @@ module.exports.getUserByUsername = function(username, callback){
 module.exports.getUserById = function(id, callback){
 	User.findById(id, callback);
 }
+
+
+module.exports.getUserByUsername = function(username, callback){
+	var query = {username: username};
+	User.findOne(query, callback);
+}
+
+
+module.exports.updateBalance = function(username, balance, callback){
+
+    console.log("UpdateBalance : " + username + " " + balance);
+    //	User.findById(id, callback);
+    
+    User.findOne({username: username}, function(err, user){
+        console.log("user:" + user);
+		user.currentBalance = balance;
+
+		user.save(function(err) {
+			if (!err) {
+				console.log("Document Updated current balance:" + balance);
+			}
+		});
+	});
+
+}
+
+
+
 
 module.exports.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {

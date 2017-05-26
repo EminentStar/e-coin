@@ -43,7 +43,8 @@ router.post('/register', function(req, res){
 			email:email,
 			username: username,
 			password: password,
-            money: 10000
+            currentBalance: 10000 //current amount         
+            
 		});
 
 		User.createUser(newUser, function(err, user){

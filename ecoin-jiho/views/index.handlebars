@@ -1,20 +1,23 @@
 <h2 class="page-header">대시보드</h2>
-<p></p>
+<h3>Hello, {{username}}</h3>
 
 
 
-
-{{items}}
 
 
 
 <div class="container">
-    <h4 class="page-header">내 돈</h4>
+    <h4 class="page-header">내 통장 정보</h4>
     <div class="panel panel-default">
-        <div class="panel-body">정보</div>
+        <div class="panel-body">
+            <h5>정보</h5>
+            <p>account holder ---------- {{user.name}} </p>
+            <p>owner's email ----------- {{user.email}} </p>
+            <p>Current Balance --------- {{user.currentBalance}}원 </p>
+        
+        </div>
     </div>
 </div>
-
 
 
 <p></p>
@@ -24,6 +27,12 @@
     <h4 class="page-header">돈 넣기</h4>
     <div class="panel panel-default">
         <div class="panel-body">돈을 충전하세요.</div>
+    
+        <form id="add-money-form" name="add-money-form" action="/add_money" method="post">
+            <button type="button" class="btn btn-default" onclick="add_money_prompt('1000', '{{username}}')" id="amount" name="amount" value="1000">1000원 충전</button>
+            <button type="button" class="btn btn-default" onclick="add_money_prompt('5000', '{{username}}')" id="amount" name="amount" value="5000">5000원 충전</button>
+            
+        </form>
     </div>
 </div>
 
@@ -34,6 +43,33 @@
     <h4 class="page-header">돈 보내기</h4>
     <div class="panel panel-default">
         <div class="panel-body">원하는 사람에게 돈을 송금하세요.</div>
+        
+        <div class="row">
+            <div class="col-lg-6">
+                <form id="send-money-form" name="send-money-form" action="/send_money" method="post">
+                    <div class="form-group">
+                        <label>받는 사람</label>
+                        <select size="5" multiple class="form-control" name="receiver" id="receiver" >
+                            {{# each items }}
+                                <option value="{{ this }}">{{this.username}} ({{this.name}})</option>
+                            {{/each}}
+                        </select>
+
+                        <label>금액</label>
+                        <select size="5" multiple class="form-control" name="amount" id="amount" >
+                            <option value="1000">1000</option>
+                            <option value="5000">5000</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-default" onclick="send_money_prompt()">선택</button>
+                    <button type="reset" class="btn btn-default">취소</button>
+                </form>
+            </div>
+        </div>
+        
+        
+        
+        
     </div>
 </div>
 
@@ -48,3 +84,14 @@
 </div>
 
 
+
+<div class="container">
+    <h4 class="page-header">상황판</h4>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {{user}}
+            <br><br>
+            {{items}}
+        </div>
+    </div>
+</div>

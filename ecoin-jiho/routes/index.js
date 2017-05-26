@@ -5,9 +5,13 @@ var User = require('../models/user');
 
 // Get Homepage
 router.get('/', ensureAuthenticated, function(req, res){
-    
-    User.find().then(function(doc) {
-	   res.render('index', {items: doc});  
+
+    User.find().then(function(items) {
+        res.render('index', {
+            username: req.user.username,
+            user: req.user,
+            items: items
+        });  
     });
 });
 

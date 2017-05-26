@@ -11,11 +11,14 @@ var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 
+
 mongoose.connect('mongodb://localhost/loginapp');
 var db = mongoose.connection;
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+
+var User = require('./models/user');
 
 // Init App
 var app = express();
@@ -73,6 +76,77 @@ app.use(function (req, res, next) {
   res.locals.user = req.user || null;
   next();
 });
+
+
+
+// POST REQUESTS
+app.post('/add_money', function(req, res) {
+    
+    console.log("POST ADD_MONEY");
+    console.log("current balance : " + req.user.currentBalance);
+    console.log("add amount : " + 1000);
+
+    console.log("HERE add amount : " + req.body.amount);
+
+
+    var total = req.user.currentBalance + 1000;
+    console.log("user:" + req.user.username + " total:" + total);
+        
+    User.updateBalance(
+        req.user.username,
+        total
+    );
+
+    res.redirect('/');
+
+
+});
+
+
+
+
+
+app.post('/send_money', function(req, res) {
+
+    console.log("POST SEND_MONEY");
+    console.log("username : " + req.user.username);
+    console.log(" : " + req.user.currentBalance);
+
+    // var receiver = req.body.receiver;
+
+
+    //console.log("receiver current balance : " + req.body.receiver.currentBalance);
+
+    //console.log("amount : " + req.body.amount);
+
+
+    var receiver = req.body.receiver;
+
+    console.log("HERE receiver : " + receiver);
+
+
+    // console.log("receiver[name] : " + o.name);
+    // console.log("receiver[currentBalance] : " + receiver[currentBalance]);
+
+
+
+    User.updateBalance(
+        req.user.username,
+        req.user.currentBalance - req.body.amount
+    );
+
+    // User.updateBalance(
+    //     receiver[username],
+    //     receiver[currentBalance] + req.body.amount
+    // );
+
+
+    res.redirect('/');
+
+
+});
+
+
 
 
 
