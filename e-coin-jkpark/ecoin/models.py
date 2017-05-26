@@ -11,3 +11,12 @@ class CoinAccount(models.Model):
         User,
         on_delete=models.CASCADE,
     )
+
+
+class Purchase(models.Model):
+    """This model has the information about each purchase of users."""
+    username = models.CharField(max_length=150, null=False)
+    product_name = models.CharField(max_length=255, null=False)
+    product_count = models.IntegerField(default=0)
+    ecoin_price = models.IntegerField(default=0)
+
