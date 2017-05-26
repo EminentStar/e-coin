@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+
+ONE_ECOIN_PRICE=100
 SHOPPING_URL='http://shopping.naver.com/search/all.nhn?query='
 
 def scrap_searched_page(query, base_url=SHOPPING_URL): 
@@ -21,7 +23,8 @@ def scrap_searched_page(query, base_url=SHOPPING_URL):
         title = title.text.strip()
         price = int(price.text.strip().replace(',',''))
         img = img.get('data-original')
-        products.append({'title': title, 'price': price, 'img':img})
+        products.append({'title': title, 'price': price,
+            'ecoin_price': int(price/ONE_ECOIN_PRICE), 'img':img})
     
     return products
 print(scrap_searched_page('김밥'))

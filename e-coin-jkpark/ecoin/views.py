@@ -8,8 +8,9 @@ from django.contrib import messages
 from django.db import transaction
 
 from .forms import UserCreationForm, LoginForm, RechargeRealMoneyForm, \
-        ExchangeEcoinForm, RemitForm, RefundForm
+        ExchangeEcoinForm, RemitForm, RefundForm, SearchProductForm
 from .models import User, CoinAccount
+from .scraper import scrap_searched_page
 
 
 LOGIN_URI_PATH = '/login/'
@@ -134,8 +135,42 @@ def exchange_ecoin(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def go_shopping(request):
-    rendered_values = {}
-    return render(request, 'ecoin/shopping.html', rendered_values)
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
+    if request.method == 'GET':
+        search_product_form = SearchProductForm()
+        rendered_values['search_product_form'] = search_product_form
+
+        return render(request, 'ecoin/shopping.html', rendered_values)
+    elif request.method == 'POST':
+        search_product_form = SearchProductForm(request.POST)
+        if search_product_form.is_valid():
+            query = search_product_form.cleaned_data.get('query')
+            products = scrap_searched_page(query)
+            
+            rendered_values['search_product_form'] = search_product_form
+            rendered_values['products'] = products
+            return render(request, 'ecoin/product_list.html', rendered_values)
+
+
+@login_required(login_url=LOGIN_URI_PATH)
+@require_POST
+def buy_product(request):
+    current_user = User.objects.get(username=request.user)
+    coin_account = CoinAccount.objects.get(username=current_user)
+
+    rendered_values = {'coin_account': coin_account, 'username': request.user}
+    ecoin_price = int(request.POST['ecoin_price'])
+    
+    purchasement_status = buy_product_process(coin_account, ecoin_price)
+
+    if purchasement_status.get('status') == False:
+        messages.add_message(request, messages.WARNING, 
+                purchasement_status.get('msg'))
+
+    return redirect('go_shopping')
 
 @login_required(login_url=LOGIN_URI_PATH)
 def refund(request):
@@ -199,4 +234,17 @@ def create_user_in_atomic_transaction(user, username):
             coin_account.save()
     except IntegrityError as e:
         raise e
-        
+
+def buy_product_process(coin_account, ecoin_price):
+    """This function proceed payment for the product."""
+    returned_dict = {'status': True, 'msg': 'Success'}
+
+    if coin_account.ecoin >= ecoin_price:
+        coin_account.ecoin -= ecoin_price
+        coin_account.save()
+    else:
+        returned_dict['status'] = False
+        returned_dict['msg'] = 'Not enough money'
+    
+    return returned_dict
+

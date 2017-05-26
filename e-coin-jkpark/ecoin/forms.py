@@ -166,3 +166,6 @@ class RefundForm(forms.Form):
 
         return returned_dict
 
+
+class SearchProductForm(forms.Form):
+    query = forms.CharField(max_length=255)

@@ -27,19 +27,6 @@
         </form>
     </div>
     <br>
-    {% if messages %}
-    <div class="row">
-        <div class="col s12 m5">
-            <div class="card-panel teal">
-                {% for message in messages %}
-                    <span class="white-text">
-	            {{ message.message }}
-                    </span>
-	        {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
     <table class="bordered">
         <thead>
@@ -66,5 +53,24 @@
         </button>
     </form>
 
+    {% if products %}
+    <ul class="collection">
+	{% for product in products %}
+	<form id='buyform{{forloop.counter}}' method='post' action="{% url 'buy_product' %}">{% csrf_token %}
+	<li class="collection-item avatar">
+		<img src="{{product.img}}" alt="" class="circle">
+	    <span class="title">
+		<input type='hidden' name='title' value="{{product.title}}">
+		{{product.title}}
+		</input>
+	    </span>
+	    <p><input type="hidden" name='price' value="{{product.price}}">{{product.price}}</input> Won</p>
+	    <p><input type="hidden" name='ecoin_price' value="{{product.ecoin_price}}">{{product.ecoin_price}}</input> E-coin</p>
+	    <button type="submit" class="btn waves-effect waves-light">buy</button>
+	</li>
+	</form>
+        {% endfor %}
+    </ul>
+    {% endif %}
 
 {% endblock content %}
