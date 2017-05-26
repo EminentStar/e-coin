@@ -80,6 +80,11 @@ class ExchangeEcoinForm(forms.ModelForm):
 
 
 class RemitForm(forms.Form):
+    """
+    ISSUE:
+        비즈니스로직 전체에 대해서 트랜잭선에 걸어놓는 것을 고려해봐야할 듯.?
+        데드락, 동시성. 체인을 물 수 있음.
+    """
     receiver = forms.CharField(max_length=150)
     ecoin_cnt = forms.IntegerField()
 
