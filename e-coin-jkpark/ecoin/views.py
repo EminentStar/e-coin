@@ -46,21 +46,24 @@ def signup(request):
 @require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == 'GET':
-        return render(request, 'ecoin/registration/login.html', {})
+        form = LoginForm() 
+        return render(request, 'ecoin/registration/login.html', {'login_form': form})
     elif request.method == 'POST':
         form = LoginForm(request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
 
-        user = authenticate(username=username, password=password)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
 
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('/main/')
-        else:
-            messages.add_message(request, messages.INFO, 'Incorrect info!')
-            return redirect('index')
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponseRedirect('/main/')
+            else:
+                messages.add_message(request, messages.INFO, 'Incorrect info!')
+
+        return redirect('index')
 
 @login_required(login_url=LOGIN_URI_PATH)
 def logout_user(request):

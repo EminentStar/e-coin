@@ -28,7 +28,7 @@ class UserCreationForm(UserCreationForm):
         return user
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
