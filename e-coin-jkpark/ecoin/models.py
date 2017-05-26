@@ -14,6 +14,11 @@ class CoinAccount(models.Model):
         on_delete=models.CASCADE,
     )
 
+    @classmethod
+    def get_account(cls, username):
+        user = User.objects.get(username=username)
+        return cls.objects.get(username=user)
+
 
 class Purchase(models.Model):
     """This model has the information about each product purchase of users."""
