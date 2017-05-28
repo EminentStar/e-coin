@@ -90,14 +90,17 @@ class RemitForm(forms.Form):
         receiver_name = self.cleaned_data["receiver"]
         ecoin_sent = self.cleaned_data["ecoin_cnt"]
 
-        received_user = User.objects.get(username=receiver_name)
-        receiver_coin_account = CoinAccount.objects.get(username=received_user)
-        coin_account.ecoin -= ecoin_sent
-        receiver_coin_account.ecoin += ecoin_sent
-
         try:
             with transaction.atomic():
-                coin_account.save()
+                """ SELECT """
+                received_user = User.objects.get(username=receiver_name)
+                receiver_coin_account = CoinAccount.objects.get(username=received_user)
+                """ UPDATE """
+                coin_account.ecoin -= ecoin_sent
+                receiver_coin_account.ecoin += ecoin_sent
+                
+                """ COMMIT """
+                coin_account.save() # commit=True by DEFAULT
                 receiver_coin_account.save()
         except IntegrityError as e:
             print(e)

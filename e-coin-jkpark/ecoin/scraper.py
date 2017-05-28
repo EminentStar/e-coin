@@ -27,4 +27,3 @@ def scrap_searched_page(query, base_url=SHOPPING_URL):
             'ecoin_price': int(price/ONE_ECOIN_PRICE), 'img':img})
     
     return products
-print(scrap_searched_page('김밥'))

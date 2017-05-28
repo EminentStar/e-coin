@@ -209,7 +209,12 @@ def remit(request):
            
             validation_status = remit_form.validate_user(request.user.username)
             if validation_status.get('status'):
-                remit_form.save(request.user.username)
+                commit_status = remit_form.save(request.user.username)
+                """ If this transaction conflicted to others, 
+                    the transaction was failed. """
+                if commit_status is False:
+                    messages.add_message(request, messages.ERROR, 
+                        'An Error occured while the remittance!')
             else:
                 messages.add_message(request, messages.ERROR, 
                     validation_status.get('msg'))
