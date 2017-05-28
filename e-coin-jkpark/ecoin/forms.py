@@ -28,7 +28,7 @@ class UserCreationForm(UserCreationForm):
         return user
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
@@ -80,6 +80,11 @@ class ExchangeEcoinForm(forms.ModelForm):
 
 
 class RemitForm(forms.Form):
+    """
+    ISSUE:
+        비즈니스로직 전체에 대해서 트랜잭선에 걸어놓는 것을 고려해봐야할 듯.?
+        데드락, 동시성. 체인을 물 수 있음.
+    """
     receiver = forms.CharField(max_length=150)
     ecoin_cnt = forms.IntegerField()
 
@@ -90,14 +95,17 @@ class RemitForm(forms.Form):
         receiver_name = self.cleaned_data["receiver"]
         ecoin_sent = self.cleaned_data["ecoin_cnt"]
 
-        received_user = User.objects.get(username=receiver_name)
-        receiver_coin_account = CoinAccount.objects.get(username=received_user)
-        coin_account.ecoin -= ecoin_sent
-        receiver_coin_account.ecoin += ecoin_sent
-
         try:
             with transaction.atomic():
-                coin_account.save()
+                """ SELECT """
+                received_user = User.objects.get(username=receiver_name)
+                receiver_coin_account = CoinAccount.objects.get(username=received_user)
+                """ UPDATE """
+                coin_account.ecoin -= ecoin_sent
+                receiver_coin_account.ecoin += ecoin_sent
+                
+                """ COMMIT """
+                coin_account.save() # commit=True by DEFAULT
                 receiver_coin_account.save()
         except IntegrityError as e:
             print(e)

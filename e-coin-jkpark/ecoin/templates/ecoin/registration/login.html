@@ -4,8 +4,7 @@
 <h2>Login</h2>
 <form method="post" action="{% url 'login_user' %}">
     {% csrf_token %}
-    <input type='text' name='username'/><p>
-    <input type='password' name='password'/><p>
+    {{login_form.as_p}}
     <button class="btn waves-effect waves-light btn-large col s2" type="submit">Login</button>
 </form>
 {% endblock content %}

@@ -46,25 +46,24 @@ def signup(request):
 @require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == 'GET':
-        return render(request, 'ecoin/registration/login.html', {})
+        form = LoginForm() 
+        return render(request, 'ecoin/registration/login.html', {'login_form': form})
     elif request.method == 'POST':
         form = LoginForm(request.POST)
-        print('in POST')
-        username = request.POST['username']
-        password = request.POST['password']
 
-        print("username: %s, password: %s" % (username, password))
-        user = authenticate(username=username, password=password)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
 
-        if user is not None:
-            print('Correct Password')
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('/main/')
-        else:
-            print('Incorrect')
-            messages.add_message(request, messages.INFO, 'Incorrect info!')
-            return redirect('index')
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponseRedirect('/main/')
+            else:
+                messages.add_message(request, messages.INFO, 'Incorrect info!')
+
+        return redirect('index')
 
 @login_required(login_url=LOGIN_URI_PATH)
 def logout_user(request):
@@ -74,16 +73,14 @@ def logout_user(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def main(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     return render(request, 'ecoin/main_view.html', rendered_values)
 
 @login_required(login_url=LOGIN_URI_PATH)
 def recharge_money(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     if request.method == 'GET':
@@ -107,8 +104,7 @@ def recharge_money(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def exchange_ecoin(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     if request.method == 'GET':
@@ -135,8 +131,7 @@ def exchange_ecoin(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def go_shopping(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     if request.method == 'GET':
@@ -158,8 +153,7 @@ def go_shopping(request):
 @login_required(login_url=LOGIN_URI_PATH)
 @require_POST
 def buy_product(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     ecoin_price = int(request.POST['ecoin_price'])
@@ -174,8 +168,7 @@ def buy_product(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def refund(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     if request.method == 'GET':
@@ -199,8 +192,7 @@ def refund(request):
 
 @login_required(login_url=LOGIN_URI_PATH)
 def remit(request):
-    current_user = User.objects.get(username=request.user)
-    coin_account = CoinAccount.objects.get(username=current_user)
+    coin_account = CoinAccount.get_account(request.user)
 
     rendered_values = {'coin_account': coin_account, 'username': request.user}
     if request.method == 'GET':
@@ -217,7 +209,12 @@ def remit(request):
            
             validation_status = remit_form.validate_user(request.user.username)
             if validation_status.get('status'):
-                remit_form.save(request.user.username)
+                commit_status = remit_form.save(request.user.username)
+                """ If this transaction conflicted to others, 
+                    the transaction was failed. """
+                if commit_status is False:
+                    messages.add_message(request, messages.ERROR, 
+                        'An Error occured while the remittance!')
             else:
                 messages.add_message(request, messages.ERROR, 
                     validation_status.get('msg'))
