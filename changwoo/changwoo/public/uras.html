@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(() => {
+                let token = $('input[name*="token]').val();
+                $cookie("example")
+                if ($cookie('token')) $('input[name*="token]').val(token);
+
+                $('input[name*="save]').click(() => {
+                    token = $('input[name*="token]').val();
+                    $.cookie('token', token);
+                });
+
+                $.ajax('/api/uras', {
+                    method: 'GET',
+                    headers: {
+                        Authorization : `Bearer ${token}`,
+                    },
+                    success: (reply) => {
+                        $(body).add(reply);
+                    },
+                });
+            });
+        </script>
+    </head>
+    <body>
+        Token: <input type='text' name='token'>
+        <input type='button' name='save'>
+    </body>
+</html>
